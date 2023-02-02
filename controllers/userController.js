@@ -36,8 +36,13 @@ const createUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email: email });
+  const { firstName, lastName, isAdmin, membershipType } = user;
   const payload = {
-    user: user?.email, // The user's email
+    email: email,
+    firstName: firstName,
+    lastName: lastName,
+    isAdmin: isAdmin,
+    membershipType: membershipType,
   };
   if (user) {
     const validPassword = await bcrypt.compare(password, user.password);
@@ -46,7 +51,7 @@ const loginUser = async (req, res) => {
       const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: "3d",
       });
-      res.json({ accessToken: accessToken });
+      res.json({ accessToken, firstName, lastName, isAdmin, membershipType });
     } else {
       res.status(400).json({ error: "Invalid Password" });
     }
@@ -69,10 +74,10 @@ const identifyUser = async (req, res) => {
     }
 
     // Extract the user's email address from the decoded payload
-    const email = decoded.user;
+    const user = decoded;
 
     // Send the email address to the frontend
-    res.send({ email: email });
+    res.send({ user });
   });
 };
 
