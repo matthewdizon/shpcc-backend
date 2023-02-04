@@ -1,6 +1,8 @@
 const User = require("../models/usersModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const CryptoJS = require("crypto-js");
+const nodemailer = require("nodemailer");
 
 const createUser = async (req, res) => {
   const { email, password } = req.body;
@@ -23,13 +25,101 @@ const createUser = async (req, res) => {
     const user = new User({
       email: email,
       password: password,
+      status: "unverified",
     });
 
     // generate salt to hash password
     const salt = await bcrypt.genSalt(10);
     // now we set user password to hashed password
     user.password = await bcrypt.hash(user.password, salt);
-    user.save().then((doc) => res.status(201).send(doc));
+    user
+      .save()
+      .then(() => {
+        const token = CryptoJS.lib.WordArray.random(16).toString();
+
+        User.findOneAndUpdate(
+          { email },
+          { verificationToken: token },
+          { new: true }
+        )
+          .then(() => {
+            const transporter = nodemailer.createTransport({
+              host: "smtp.gmail.com",
+              port: 587,
+              secure: false,
+              requireTLS: true,
+              auth: {
+                user: `${process.env.NODEMAILER_EMAIL}`,
+                pass: `${process.env.NODEMAILER_PASSWORD}`,
+              },
+            });
+
+            const verificationUrl = `${process.env.BACKEND_SERVER}/api/users/verifyEmail?token=${token}`;
+
+            const mailOptions = {
+              from: `SHPCC ${process.env.NODEMAILER_EMAIL}`,
+              to: email,
+              subject: "Verify your email",
+              html: `
+              <html>
+<head>
+  <style type="text/css">
+    /* Add styles here */
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 20px;
+      text-align: center;
+      color: #333;
+    }
+    p {
+      font-size: 16px;
+      line-height: 1.5;
+      text-align: center;
+      color: #333;
+      margin-top: 20px;
+    }
+    a {
+      display: block;
+      font-size: 16px;
+      background-color: #E74C3C;
+      color: #FFF;
+      padding: 15px 20px;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Verify Your Email</h1>
+  <p>A verification link has been sent to your email. Please check your inbox and follow the instructions to verify your account and start using our app.</p>
+  <a href=${verificationUrl}>Verify Email</a>
+</body>
+</html>
+            
+`,
+              // html: "<h1>Hello, World!</h1><p>This is an HTML email.</p>",
+              // text: `Verification link: ${verificationUrl}`,
+            };
+
+            transporter.sendMail(mailOptions, (error) => {
+              if (error) {
+                return res.status(400).send({ error });
+              }
+
+              return res.send({
+                message:
+                  "An email has been sent to your email address for verification.",
+              });
+            });
+          })
+          .catch((error) => res.status(400).send({ error }));
+      })
+      .catch((error) => res.status(400).send({ error }));
   });
 };
 
@@ -81,6 +171,24 @@ const identifyUser = async (req, res) => {
   });
 };
 
+const verifyEmail = async (req, res) => {
+  const { token } = req.query;
+
+  try {
+    const user = await User.findOne({ verificationToken: token });
+    if (!user) {
+      return res.status(400).send({ error: "Invalid token" });
+    }
+
+    user.status = "verified";
+    await user.save();
+
+    res.redirect(`${process.env.FRONTEND_CLIENT}/verificationSuccessful`);
+  } catch (error) {
+    res.status(500).send({ error: "Internal Server Error" });
+  }
+};
+
 const getUsers = async (req, res) => {
   const users = await User.find({});
 
@@ -91,5 +199,6 @@ module.exports = {
   createUser,
   loginUser,
   identifyUser,
+  verifyEmail,
   getUsers,
 };

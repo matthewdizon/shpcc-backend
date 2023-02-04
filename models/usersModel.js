@@ -9,6 +9,15 @@ const userSchema = new Schema({
     lowercase: true,
   },
   password: String,
+  status: {
+    type: String,
+    enum: ["unverified", "verified"],
+    default: "unverified",
+  },
+  verificationToken: {
+    type: String,
+    unique: true,
+  },
   isAdmin: {
     type: Boolean,
     default: false,
