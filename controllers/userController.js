@@ -113,7 +113,7 @@ const createUser = async (req, res) => {
         )
           .then(() => {
             sendVerificationEmail(email, token);
-            res.status(200).send({ message: "User created successfully!" });
+            res.status(200).send({ user });
           })
           .catch((error) => res.status(400).send({ error }));
       })
@@ -188,6 +188,92 @@ const verifyEmail = async (req, res) => {
   }
 };
 
+async function resendVerificationLink(req, res) {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).send({ error: "User not found" });
+    }
+
+    if (user.status === "verified") {
+      return res
+        .status(400)
+        .send({ error: "This email has already been verified" });
+    }
+
+    const verificationUrl = `${process.env.BACKEND_SERVER}/api/users/verifyEmail?token=${user.verificationToken}`;
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      auth: {
+        user: `${process.env.NODEMAILER_EMAIL}`,
+        pass: `${process.env.NODEMAILER_PASSWORD}`,
+      },
+    });
+
+    const mailOptions = {
+      from: `SHPCC ${process.env.NODEMAILER_EMAIL}`,
+      to: email,
+      subject: "Verify your email",
+      html: `
+      <html>
+<head>
+<style type="text/css">
+/* Add styles here */
+body {
+font-family: Arial, sans-serif;
+padding: 20px;
+}
+h1 {
+font-size: 20px;
+text-align: center;
+color: #333;
+}
+p {
+font-size: 16px;
+line-height: 1.5;
+text-align: center;
+color: #333;
+margin-top: 20px;
+}
+a {
+display: block;
+font-size: 16px;
+background-color: #E74C3C;
+color: #FFF;
+padding: 15px 20px;
+text-align: center;
+text-decoration: none;
+border-radius: 5px;
+margin-top: 20px;
+}
+</style>
+</head>
+<body>
+<h1>Verify Your Email</h1>
+<p>A verification link has been sent to your email. Please check your inbox and follow the instructions to verify your account and start using our app.</p>
+<a href=${verificationUrl}>Verify Email</a>
+</body>
+</html>
+    
+`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return res
+      .status(200)
+      .send({ message: "Email verification link has been resent." });
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 const getUsers = async (req, res) => {
   const users = await User.find({});
 
@@ -199,5 +285,6 @@ module.exports = {
   loginUser,
   identifyUser,
   verifyEmail,
+  resendVerificationLink,
   getUsers,
 };

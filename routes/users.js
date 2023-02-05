@@ -6,6 +6,7 @@ const {
   identifyUser,
   getUsers,
   verifyEmail,
+  resendVerificationLink,
 } = require("../controllers/userController");
 const { authenticateAdminToken } = require("../middleware/authenticateToken");
 
@@ -15,6 +16,7 @@ router.post("/signup", createUser);
 router.post("/login", loginUser);
 router.get("/user", identifyUser);
 router.get("/verifyEmail", verifyEmail);
+router.post("/resendVerificationLink", resendVerificationLink);
 
 router.get("/users", authenticateAdminToken, getUsers);
 
