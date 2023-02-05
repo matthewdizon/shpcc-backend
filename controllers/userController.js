@@ -4,6 +4,75 @@ const jwt = require("jsonwebtoken");
 const CryptoJS = require("crypto-js");
 const nodemailer = require("nodemailer");
 
+async function sendVerificationEmail(email, token) {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      auth: {
+        user: `${process.env.NODEMAILER_EMAIL}`,
+        pass: `${process.env.NODEMAILER_PASSWORD}`,
+      },
+    });
+
+    const verificationUrl = `${process.env.BACKEND_SERVER}/api/users/verifyEmail?token=${token}`;
+
+    const mailOptions = {
+      from: `SHPCC ${process.env.NODEMAILER_EMAIL}`,
+      to: email,
+      subject: "Verify your email",
+      html: `
+      <html>
+<head>
+<style type="text/css">
+/* Add styles here */
+body {
+font-family: Arial, sans-serif;
+padding: 20px;
+}
+h1 {
+font-size: 20px;
+text-align: center;
+color: #333;
+}
+p {
+font-size: 16px;
+line-height: 1.5;
+text-align: center;
+color: #333;
+margin-top: 20px;
+}
+a {
+display: block;
+font-size: 16px;
+background-color: #E74C3C;
+color: #FFF;
+padding: 15px 20px;
+text-align: center;
+text-decoration: none;
+border-radius: 5px;
+margin-top: 20px;
+}
+</style>
+</head>
+<body>
+<h1>Verify Your Email</h1>
+<p>A verification link has been sent to your email. Please check your inbox and follow the instructions to verify your account and start using our app.</p>
+<a href=${verificationUrl}>Verify Email</a>
+</body>
+</html>
+    
+`,
+    };
+
+    return await transporter.sendMail(mailOptions);
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 const createUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -43,79 +112,8 @@ const createUser = async (req, res) => {
           { new: true }
         )
           .then(() => {
-            const transporter = nodemailer.createTransport({
-              host: "smtp.gmail.com",
-              port: 587,
-              secure: false,
-              requireTLS: true,
-              auth: {
-                user: `${process.env.NODEMAILER_EMAIL}`,
-                pass: `${process.env.NODEMAILER_PASSWORD}`,
-              },
-            });
-
-            const verificationUrl = `${process.env.BACKEND_SERVER}/api/users/verifyEmail?token=${token}`;
-
-            const mailOptions = {
-              from: `SHPCC ${process.env.NODEMAILER_EMAIL}`,
-              to: email,
-              subject: "Verify your email",
-              html: `
-              <html>
-<head>
-  <style type="text/css">
-    /* Add styles here */
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 20px;
-      text-align: center;
-      color: #333;
-    }
-    p {
-      font-size: 16px;
-      line-height: 1.5;
-      text-align: center;
-      color: #333;
-      margin-top: 20px;
-    }
-    a {
-      display: block;
-      font-size: 16px;
-      background-color: #E74C3C;
-      color: #FFF;
-      padding: 15px 20px;
-      text-align: center;
-      text-decoration: none;
-      border-radius: 5px;
-      margin-top: 20px;
-    }
-  </style>
-</head>
-<body>
-  <h1>Verify Your Email</h1>
-  <p>A verification link has been sent to your email. Please check your inbox and follow the instructions to verify your account and start using our app.</p>
-  <a href=${verificationUrl}>Verify Email</a>
-</body>
-</html>
-            
-`,
-              // html: "<h1>Hello, World!</h1><p>This is an HTML email.</p>",
-              // text: `Verification link: ${verificationUrl}`,
-            };
-
-            transporter.sendMail(mailOptions, (error) => {
-              if (error) {
-                return res.status(400).send({ error });
-              }
-
-              return res.send({
-                message:
-                  "An email has been sent to your email address for verification.",
-              });
-            });
+            sendVerificationEmail(email, token);
+            res.status(200).send({ message: "User created successfully!" });
           })
           .catch((error) => res.status(400).send({ error }));
       })
@@ -126,13 +124,14 @@ const createUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email: email });
-  const { firstName, lastName, isAdmin, membershipType } = user;
+  const { firstName, lastName, isAdmin, membershipType, status } = user;
   const payload = {
-    email: email,
-    firstName: firstName,
-    lastName: lastName,
-    isAdmin: isAdmin,
-    membershipType: membershipType,
+    email,
+    firstName,
+    lastName,
+    isAdmin,
+    membershipType,
+    status,
   };
   if (user) {
     const validPassword = await bcrypt.compare(password, user.password);
