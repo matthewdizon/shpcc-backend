@@ -91,26 +91,24 @@ const createUser = async (req, res) => {
       return res.status(422).send({ error: "Email is already in use..." });
     }
 
+    const token = CryptoJS.lib.WordArray.random(16).toString();
+
     const user = new User({
       email: email,
       password: password,
       status: "unverified",
+      verificationToken: token,
     });
 
     // generate salt to hash password
     const salt = await bcrypt.genSalt(10);
     // now we set user password to hashed password
     user.password = await bcrypt.hash(user.password, salt);
+
     user
       .save()
       .then(() => {
-        const token = CryptoJS.lib.WordArray.random(16).toString();
-
-        User.findOneAndUpdate(
-          { email },
-          { verificationToken: token },
-          { new: true }
-        )
+        User.findOneAndUpdate({ email }, { new: true })
           .then(() => {
             sendVerificationEmail(email, token);
             res.status(200).send({ user });
