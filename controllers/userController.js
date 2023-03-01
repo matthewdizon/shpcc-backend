@@ -122,16 +122,16 @@ const createUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email: email });
-  const { firstName, lastName, isAdmin, membershipType, status } = user;
-  const payload = {
-    email,
-    firstName,
-    lastName,
-    isAdmin,
-    membershipType,
-    status,
-  };
   if (user) {
+    const { firstName, lastName, isAdmin, membershipType, status } = user;
+    const payload = {
+      email,
+      firstName,
+      lastName,
+      isAdmin,
+      membershipType,
+      status,
+    };
     const validPassword = await bcrypt.compare(password, user.password);
 
     if (validPassword) {
