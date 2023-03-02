@@ -17,7 +17,21 @@ const createAssociateApplication = async (req, res) => {
   res.status(200).json(associateApplication);
 };
 
+const getAssociateApplication = async (req, res) => {
+  const { email } = req.params;
+
+  AssociateApplication.findOne(
+    {
+      user: email,
+    },
+    function (err, obj) {
+      res.status(200).json(obj);
+    }
+  );
+};
+
 module.exports = {
   getAssociateApplications,
   createAssociateApplication,
+  getAssociateApplication,
 };

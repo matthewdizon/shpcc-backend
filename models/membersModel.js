@@ -28,6 +28,11 @@ const associateApplicationSchema = new mongoose.Schema({
   inTrustFor: { type: String },
 
   // Company Information
+  business: { type: String },
+  companyName: { type: String },
+  companyAddress: { type: String },
+  companyIdNumber: { type: String },
+  companyIdValidUntil: { type: String },
 
   // Account Information
 
