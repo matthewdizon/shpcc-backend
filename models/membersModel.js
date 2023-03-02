@@ -1,22 +1,39 @@
 const mongoose = require("mongoose");
 
 const associateApplicationSchema = new mongoose.Schema({
+  // General
+  user: { type: String, required: true },
+  isDraft: { type: Boolean },
+
+  // Personal Information
   lastName: { type: String },
   firstName: { type: String },
   middleName: { type: String },
   suffix: { type: String },
-  inTrustFor: { type: String },
-  accountType: { type: String },
+  maidenName: { type: String },
+
   address: { type: String },
-  telephone: { type: String },
+  dateOfBirth: { type: String },
+  age: { type: String },
+  placeOfBirth: { type: String },
+
+  gender: { type: String },
+  civilStatus: { type: String },
   cellphone: { type: String },
   facebookName: { type: String },
-  dateOfBirth: { type: String },
-  placeOfBirth: { type: String },
-  civilStatus: { type: String },
-  gender: { type: String },
+  viberMessenger: { type: String },
+
   religion: { type: String },
   educationalAttainment: { type: String },
+  inTrustFor: { type: String },
+
+  // Company Information
+
+  // Account Information
+
+  // Beneficiaries/Dependents
+
+  // Attachments
 });
 
 const regularApplicationSchema = new mongoose.Schema({

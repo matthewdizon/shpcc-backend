@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const getUsers = require("./routes/users");
-const getApplications = require("./routes/members");
+const getMemberApplications = require("./routes/members");
 
 const app = express();
 
@@ -27,4 +27,4 @@ mongoose
   });
 
 app.use("/api/users", getUsers);
-app.use("/api/applications", getApplications);
+app.use("/api/memberApplications", getMemberApplications);
