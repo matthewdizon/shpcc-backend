@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const associateApplicationSchema = new mongoose.Schema({
   // General
-  user: { type: String, required: true },
+  user: { type: String, required: true, unique: true },
   isDraft: { type: Boolean },
 
   // Personal Information
@@ -35,6 +35,29 @@ const associateApplicationSchema = new mongoose.Schema({
   companyIdValidUntil: { type: String },
 
   // Account Information
+  accountType: { type: String },
+  monthlyIncome: { type: String },
+  sssGsisNumber: { type: String },
+  tinNumber: { type: String },
+  barangay: { type: String },
+  voterId: { type: String },
+  idType: { type: String },
+  idNumber: { type: String },
+  idValidUntil: { type: String },
+  otherSourcesOfIncome: {
+    type: [
+      {
+        source: { type: String },
+        amountPerMonth: { type: String },
+      },
+    ],
+    default: [
+      {
+        source: "",
+        amountPerMonth: "",
+      },
+    ],
+  },
 
   // Beneficiaries/Dependents
 
