@@ -30,8 +30,22 @@ const getAssociateApplication = async (req, res) => {
   );
 };
 
+const updateAssociateApplication = async (req, res) => {
+  const { email } = req.params;
+
+  const associateApplication = await AssociateApplication.findOneAndUpdate(
+    { user: email },
+    {
+      ...req.body,
+    }
+  );
+
+  return res.status(200).json(associateApplication);
+};
+
 module.exports = {
   getAssociateApplications,
   createAssociateApplication,
   getAssociateApplication,
+  updateAssociateApplication,
 };
