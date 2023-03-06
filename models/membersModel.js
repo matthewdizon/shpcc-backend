@@ -19,7 +19,7 @@ const associateApplicationSchema = new mongoose.Schema({
 
   gender: { type: String },
   civilStatus: { type: String },
-  cellphone: { type: String },
+  contactNumber: { type: String },
   facebookName: { type: String },
   viberMessenger: { type: String },
 
@@ -60,6 +60,38 @@ const associateApplicationSchema = new mongoose.Schema({
   },
 
   // Beneficiaries/Dependents
+  beneficiaries: {
+    type: [
+      {
+        fullName: { type: String },
+        address: { type: String },
+        relationship: { type: String },
+        age: { type: String },
+        dateOfBirth: { type: String },
+      },
+    ],
+    default: [
+      {
+        fullName: "",
+        address: "",
+        relationship: "",
+        age: "",
+        dateOfBirth: "",
+      },
+    ],
+  },
+  shpccFamilyMembers: {
+    type: [
+      {
+        name: { type: String },
+      },
+    ],
+    default: [
+      {
+        name: "",
+      },
+    ],
+  },
 
   // Attachments
 });
