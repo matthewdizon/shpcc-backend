@@ -4,6 +4,11 @@ const associateApplicationSchema = new mongoose.Schema({
   // General
   user: { type: String, required: true, unique: true },
   isDraft: { type: Boolean },
+  status: {
+    type: String,
+    enum: ["Approved", "Pending", "Rejected"],
+    default: "Pending",
+  },
 
   // Personal Information
   lastName: { type: String },

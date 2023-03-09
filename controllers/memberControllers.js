@@ -4,7 +4,9 @@ const {
 } = require("../models/membersModel");
 
 const getAssociateApplications = async (req, res) => {
-  const associateApplications = await AssociateApplication.find({});
+  const associateApplications = await AssociateApplication.find({
+    isDraft: false,
+  });
 
   res.status(200).json(associateApplications);
 };
