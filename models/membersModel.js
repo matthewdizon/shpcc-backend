@@ -9,6 +9,16 @@ const associateApplicationSchema = new mongoose.Schema({
     enum: ["Approved", "Pending", "Rejected"],
     default: "Pending",
   },
+  dateSubmitted: { type: String },
+
+  // Admin General
+  accountNumber: { type: String },
+  codeNumber: { type: String },
+  orNumber: { type: String },
+  initialDeposit: { type: String },
+  authenticatedBy: { type: String },
+  approvedBy: { type: String },
+  approvedDate: { type: String },
 
   // Personal Information
   lastName: { type: String },
