@@ -17,6 +17,7 @@ const associateApplicationSchema = new mongoose.Schema({
   orNumber: { type: String },
   initialDeposit: { type: String },
   authenticatedBy: { type: String },
+  brNumber: { type: String },
   approvedBy: { type: String },
   approvedDate: { type: String },
 
