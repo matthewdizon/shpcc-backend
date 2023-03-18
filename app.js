@@ -6,6 +6,7 @@ const cors = require("cors");
 
 const getUsers = require("./routes/users");
 const getMemberApplications = require("./routes/members");
+const getLoanApplications = require("./routes/loans");
 
 const app = express();
 
@@ -28,3 +29,4 @@ mongoose
 
 app.use("/api/users", getUsers);
 app.use("/api/memberApplications", getMemberApplications);
+app.use("/api/loans", getLoanApplications);
