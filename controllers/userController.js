@@ -98,6 +98,7 @@ const createUser = async (req, res) => {
       password: password,
       status: "unverified",
       verificationToken: token,
+      accountCreatedDate: new Date(),
     });
 
     // generate salt to hash password
@@ -178,6 +179,7 @@ const verifyEmail = async (req, res) => {
     }
 
     user.status = "verified";
+    user.dateVerified = new Date();
     await user.save();
 
     res.redirect(`${process.env.FRONTEND_CLIENT}/verificationSuccessful`);
@@ -278,6 +280,14 @@ const getUsers = async (req, res) => {
   res.status(200).json(users);
 };
 
+const getUser = async (req, res) => {
+  const { email } = req.params;
+
+  const user = await User.find({ email: email });
+
+  res.status(200).json(user);
+};
+
 module.exports = {
   createUser,
   loginUser,
@@ -285,4 +295,5 @@ module.exports = {
   verifyEmail,
   resendVerificationLink,
   getUsers,
+  getUser,
 };

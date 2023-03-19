@@ -7,8 +7,12 @@ const {
   getUsers,
   verifyEmail,
   resendVerificationLink,
+  getUser,
 } = require("../controllers/userController");
-const { authenticateAdminToken } = require("../middleware/authenticateToken");
+const {
+  authenticateAdminToken,
+  authenticateToken,
+} = require("../middleware/authenticateToken");
 
 const router = express.Router();
 
@@ -19,5 +23,6 @@ router.get("/verifyEmail", verifyEmail);
 router.post("/resendVerificationLink", resendVerificationLink);
 
 router.get("/users", authenticateAdminToken, getUsers);
+router.get("/:email", authenticateToken, getUser);
 
 module.exports = router;

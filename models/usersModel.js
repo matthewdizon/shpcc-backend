@@ -18,6 +18,8 @@ const userSchema = new Schema({
     type: String,
     unique: true,
   },
+  accountCreatedDate: { type: String },
+  dateVerified: { type: String },
   isAdmin: {
     type: Boolean,
     default: false,
@@ -26,9 +28,18 @@ const userSchema = new Schema({
   lastName: { type: String, default: "" },
   membershipType: {
     type: String,
-    enum: ["none", "regular", "associate"],
+    enum: ["none", "Regular", "Associate"],
     default: "none",
   },
+
+  // updates from associate application
+  contactNumber: { type: String, default: "" },
+  address: { type: String, default: "" },
+  facebookName: { type: String, default: "" },
+
+  // link all loans made by user (add array for loans)
+  gintongButilLoanApplications: { type: [String] },
+  regularLoanApplications: { type: [String] },
 });
 
 const User = mongoose.model("user", userSchema);
