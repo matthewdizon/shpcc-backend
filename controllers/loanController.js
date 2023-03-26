@@ -2,10 +2,20 @@ const {
   GintongButilLoanApplication,
   RegularLoanApplication,
 } = require("../models/loansModel");
+const User = require("../models/usersModel");
 
 const getGintongButilLoanApplications = async (req, res) => {
   const gintongButilLoanApplications = await GintongButilLoanApplication.find({
     isDraft: false,
+  });
+
+  res.status(200).json(gintongButilLoanApplications);
+};
+
+const getUserGintongButilLoanApplications = async (req, res) => {
+  const { email } = req.params;
+  const gintongButilLoanApplications = await GintongButilLoanApplication.find({
+    user: email,
   });
 
   res.status(200).json(gintongButilLoanApplications);
@@ -16,15 +26,22 @@ const createGintongButilLoanApplication = async (req, res) => {
     ...req.body,
   });
 
+  const test = await User.findOneAndUpdate(
+    { email: gintongButilLoanApplication.user },
+    { $push: { gintongButilLoanApplications: gintongButilLoanApplication._id } }
+  );
+
+  console.log(test);
+
   res.status(200).json(gintongButilLoanApplication);
 };
 
 const getGintongButilLoanApplication = async (req, res) => {
-  const { email } = req.params;
+  const { id } = req.params;
 
   GintongButilLoanApplication.findOne(
     {
-      user: email,
+      _id: id,
     },
     function (err, obj) {
       res.status(200).json(obj);
@@ -33,11 +50,11 @@ const getGintongButilLoanApplication = async (req, res) => {
 };
 
 const updateGintongButilLoanApplication = async (req, res) => {
-  const { email } = req.params;
+  const { id } = req.params;
 
   const gintongButilLoanApplication =
     await GintongButilLoanApplication.findOneAndUpdate(
-      { user: email },
+      { _id: id },
       {
         ...req.body,
       }
@@ -48,6 +65,7 @@ const updateGintongButilLoanApplication = async (req, res) => {
 
 module.exports = {
   getGintongButilLoanApplications,
+  getUserGintongButilLoanApplications,
   createGintongButilLoanApplication,
   getGintongButilLoanApplication,
   updateGintongButilLoanApplication,
