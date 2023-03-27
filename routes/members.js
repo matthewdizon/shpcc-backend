@@ -4,6 +4,10 @@ const {
   createAssociateApplication,
   getAssociateApplication,
   updateAssociateApplication,
+  getRegularApplications,
+  createRegularApplication,
+  getRegularApplication,
+  updateRegularApplication,
 } = require("../controllers/memberControllers");
 
 const { authenticateToken } = require("../middleware/authenticateToken");
@@ -18,5 +22,10 @@ router.patch(
   authenticateToken,
   updateAssociateApplication
 );
+
+router.get("/regular", authenticateToken, getRegularApplications);
+router.post("/regular", authenticateToken, createRegularApplication);
+router.get("/regular/:email", authenticateToken, getRegularApplication);
+router.patch("/regular/:email", authenticateToken, updateRegularApplication);
 
 module.exports = router;
