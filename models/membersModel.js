@@ -199,14 +199,34 @@ const regularApplicationSchema = new mongoose.Schema({
   spouseOfwCompanyAddress: { type: String },
 
   // ---dependentsAndBeneficiaries
-  // (children) - array
-  // childFullName
-  // childDateOfBirth
-  // childContactNumber
-  // (otherRelatives) - array
-  // relativeFullName
-  // relativeRelationship
-  // relativeContactNumber
+  children: {
+    type: [
+      {
+        childFullName: { type: String },
+        childDateOfBirth: { type: String },
+        childContactNumber: { type: String },
+      },
+    ],
+    default: [
+      { childFullName: "", childDateOfBirth: "", childContactNumber: "" },
+    ],
+  },
+  otherRelatives: {
+    type: [
+      {
+        relativeFullName: { type: String },
+        relativeRelationship: { type: String },
+        relativeContactNumber: { type: String },
+      },
+    ],
+    default: [
+      {
+        relativeFullName: "",
+        relativeRelationship: "",
+        relativeContactNumber: "",
+      },
+    ],
+  },
 
   // ##### Employment Details
   // pensioner*
