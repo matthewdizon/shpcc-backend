@@ -174,27 +174,29 @@ const regularApplicationSchema = new mongoose.Schema({
 
   // ##### Family Information
   // ---spouse's information
-  // spouseLastName*
-  // spouseFirstName*
-  // spouseMiddleName
-  // spouseSuffix
-  // spouseContactNumber
-  // spouseTin*
-  // spousePensioner*
-  // spouseSss*
-  // spouseGsis*
-  // spouseEmploymentType* (locally employed or is OFW)
+  spouseLastName: { type: String },
+  spouseFirstName: { type: String },
+  spouseMiddleName: { type: String },
+  spouseSuffix: { type: String },
+  spouseContactNumber: { type: String },
+  spouseTin: { type: String },
+  spousePensioner: { type: String },
+  spouseSss: { type: String },
+  spouseGsis: { type: String },
+  spouseEmploymentType: { type: String },
   // (employee)
-  // spouseCompanyName*
-  // spouseCompanyAddress*
-  // spouseCompanyContactNumber*
+  spouseIsEmployee: { type: Boolean },
+  spouseCompanyName: { type: String },
+  spouseCompanyAddress: { type: String },
+  spouseCompanyContactNumber: { type: String },
   // (business)
-  // spouseBusinessType*
-  // spouseBusinessName*
-  // spouseBusinessLocation*
+  spouseIsBusinessOwner: { type: Boolean },
+  spouseBusinessType: { type: String },
+  spouseBusinessName: { type: String },
+  spouseBusinessLocation: { type: String },
   // (ofw)
-  // spouseOfwCompanyName*
-  // spouseOfwCompanyAddress*
+  spouseOfwCompanyName: { type: String },
+  spouseOfwCompanyAddress: { type: String },
 
   // ---dependentsAndBeneficiaries
   // (children) - array
