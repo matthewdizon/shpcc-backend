@@ -30,3 +30,5 @@ mongoose
 app.use("/api/users", getUsers);
 app.use("/api/memberApplications", getMemberApplications);
 app.use("/api/loans", getLoanApplications);
+
+module.exports = app;
