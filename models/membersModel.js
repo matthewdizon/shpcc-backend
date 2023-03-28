@@ -229,21 +229,23 @@ const regularApplicationSchema = new mongoose.Schema({
   },
 
   // ##### Employment Details
-  // pensioner*
-  // sss*
-  // gsis*
-  // employmentType* (locally employed or ofw)
+  pensioner: { type: String },
+  sss: { type: String },
+  gsis: { type: String },
+  employmentType: { type: String },
   // (employee)
-  // companyName*
-  // companyAddress*
-  // companyContactNumber*
+  isEmployee: { type: Boolean },
+  companyName: { type: String },
+  companyAddress: { type: String },
+  companyContactNumber: { type: String },
   // (business)
-  // businessType*
-  // businessName*
-  // businessLocation*
+  isBusinessOwner: { type: Boolean },
+  businessType: { type: String },
+  businessName: { type: String },
+  businessLocation: { type: String },
   // (ofw)
-  // ofwCompanyName*
-  // ofwCompanyAddress*
+  ofwCompanyName: { type: String },
+  ofwCompanyAddress: { type: String },
 
   // ##### Family and Business Income
   // monthlySalary
