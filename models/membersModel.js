@@ -248,12 +248,12 @@ const regularApplicationSchema = new mongoose.Schema({
   ofwCompanyAddress: { type: String },
 
   // ##### Family and Business Income
-  // monthlySalary
-  // businessIncome
-  // otherIncomeSource
-  // spouseMonthlySalary
-  // spouseBusinessIncome
-  // spouseOtherIncomeSource
+  monthlySalary: { type: Number },
+  businessIncome: { type: Number },
+  otherIncomeSource: { type: Number },
+  spouseMonthlySalary: { type: Number },
+  spouseBusinessIncome: { type: Number },
+  spouseOtherIncomeSource: { type: Number },
 });
 
 const AssociateApplication = mongoose.model(
