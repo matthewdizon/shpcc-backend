@@ -124,11 +124,34 @@ const regularApplicationSchema = new mongoose.Schema({
   dateSubmitted: { type: String },
 
   // ##### Admin General
-  // (pmesAttendance)
-  // (backgroundInvestigation)
-  // (settledFees)
-  // (accountInfo)
-  // (boardResolution)
+  // ---pmesAttendance
+  pmesAttendanceAuthenticatedBy: { type: String },
+  pmesAttendanceAuthenticatedDate: { type: String },
+
+  // ---backgroundInvestigation
+  backgroundInvestigationAuthenticatedBy: { type: String },
+  backgroundInvestigationAuthenticatedDate: { type: String },
+
+  // ---settledFees
+  commonShare: { type: String },
+  preferredShare: { type: String },
+  savingsDeposit: { type: String },
+  membershipFee: { type: String },
+  seminarFee: { type: String },
+  damayan: { type: String },
+  gyrt: { type: String },
+
+  // ---accountInfo
+  // accountNumber ??
+  orNumber: { type: String },
+  dateEncoded: { type: String },
+  encodedBy: { type: String },
+
+  // ---boardResolution
+  boardResolutionNumber: { type: String },
+  boardDateEncoded: { type: String },
+  approvedBy: { type: String },
+  approvedDate: { type: String },
 
   // ##### Personal Information
   lastName: { type: String },
