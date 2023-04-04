@@ -63,10 +63,75 @@ const updateGintongButilLoanApplication = async (req, res) => {
   return res.status(200).json(gintongButilLoanApplication);
 };
 
+// Regular Loan Applications
+
+const getRegularLoanApplications = async (req, res) => {
+  const regularLoanApplications = await RegularLoanApplication.find({
+    isDraft: false,
+  });
+
+  res.status(200).json(regularLoanApplications);
+};
+
+const getUserRegularLoanApplications = async (req, res) => {
+  const { email } = req.params;
+  const regularLoanApplications = await RegularLoanApplication.find({
+    user: email,
+  });
+
+  res.status(200).json(regularLoanApplications);
+};
+
+const createRegularLoanApplication = async (req, res) => {
+  const regularLoanApplication = await RegularLoanApplication.create({
+    ...req.body,
+  });
+
+  const test = await User.findOneAndUpdate(
+    { email: regularLoanApplication.user },
+    { $push: { regularLoanApplications: regularLoanApplication._id } }
+  );
+
+  console.log(test);
+
+  res.status(200).json(regularLoanApplication);
+};
+
+const getRegularLoanApplication = async (req, res) => {
+  const { id } = req.params;
+
+  RegularLoanApplication.findOne(
+    {
+      _id: id,
+    },
+    function (err, obj) {
+      res.status(200).json(obj);
+    }
+  );
+};
+
+const updateRegularLoanApplication = async (req, res) => {
+  const { id } = req.params;
+
+  const regularLoanApplication = await RegularLoanApplication.findOneAndUpdate(
+    { _id: id },
+    {
+      ...req.body,
+    }
+  );
+
+  return res.status(200).json(regularLoanApplication);
+};
+
 module.exports = {
   getGintongButilLoanApplications,
   getUserGintongButilLoanApplications,
   createGintongButilLoanApplication,
   getGintongButilLoanApplication,
   updateGintongButilLoanApplication,
+  getRegularLoanApplications,
+  getUserRegularLoanApplications,
+  createRegularLoanApplication,
+  getRegularLoanApplication,
+  updateRegularLoanApplication,
 };
