@@ -73,6 +73,7 @@ const regularLoanApplicationSchema = new mongoose.Schema({
   amount: { type: String },
   duration: { type: String },
   paymentInterval: { type: String },
+  remainingLoanBalance: { type: String },
   reason: { type: String },
 
   // Collateral Details
