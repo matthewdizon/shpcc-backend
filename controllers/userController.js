@@ -1,4 +1,9 @@
 const User = require("../models/usersModel");
+const {
+  GintongButilLoanApplication,
+  RegularLoanApplication,
+} = require("../models/loansModel");
+
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const CryptoJS = require("crypto-js");
@@ -283,7 +288,13 @@ const getUsers = async (req, res) => {
 const getUser = async (req, res) => {
   const { email } = req.params;
 
-  const user = await User.find({ email: email });
+  const user = await User.find({ email: email }).populate([
+    {
+      path: "gintongButilLoanApplications",
+      model: GintongButilLoanApplication,
+    },
+    { path: "regularLoanApplications", model: RegularLoanApplication },
+  ]);
 
   res.status(200).json(user);
 };
