@@ -8,6 +8,7 @@ const {
   verifyEmail,
   resendVerificationLink,
   getUser,
+  updateUser,
 } = require("../controllers/userController");
 const {
   authenticateAdminToken,
@@ -24,5 +25,6 @@ router.post("/resendVerificationLink", resendVerificationLink);
 
 router.get("/users", authenticateAdminToken, getUsers);
 router.get("/:email", authenticateToken, getUser);
+router.patch("/:email", authenticateToken, updateUser);
 
 module.exports = router;

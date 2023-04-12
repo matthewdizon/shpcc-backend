@@ -24,11 +24,19 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+
   firstName: { type: String, default: "" },
   lastName: { type: String, default: "" },
   membershipType: {
     type: String,
     enum: ["none", "Regular", "Associate"],
+    default: "none",
+  },
+  associateAccountNumber: { type: String },
+  regularAccountNumber: { type: String },
+  department: {
+    type: String,
+    enum: ["none", "Loans", "Memberships"],
     default: "none",
   },
 

@@ -299,6 +299,19 @@ const getUser = async (req, res) => {
   res.status(200).json(user);
 };
 
+const updateUser = async (req, res) => {
+  const { email } = req.params;
+
+  const user = await User.findOneAndUpdate(
+    { email: email },
+    {
+      ...req.body,
+    }
+  );
+
+  return res.status(200).json(user);
+};
+
 module.exports = {
   createUser,
   loginUser,
@@ -307,4 +320,5 @@ module.exports = {
   resendVerificationLink,
   getUsers,
   getUser,
+  updateUser,
 };
