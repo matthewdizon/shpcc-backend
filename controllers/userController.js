@@ -312,6 +312,46 @@ const updateUser = async (req, res) => {
   return res.status(200).json(user);
 };
 
+const updateUserPassword = async (req, res) => {
+  const { email } = req.params;
+  const { oldPassword, newPassword } = req.body;
+
+  if (!email || !oldPassword || !newPassword) {
+    return res.status(422).send({
+      error: "Email, old password, and new password must be provided",
+    });
+  }
+
+  // Find the user by email
+  const user = await User.findOne({ email: email });
+
+  if (!user) {
+    return res.status(404).send({ error: "User not found" });
+  }
+
+  // Check if the old password matches the hashed password in the database
+  const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+  if (!isMatch) {
+    return res.status(401).send({ error: "Invalid password" });
+  }
+
+  // Generate salt to hash new password
+  const salt = await bcrypt.genSalt(10);
+  // Hash the new password
+  const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+  // Update the user's password
+  user.password = hashedPassword;
+
+  try {
+    await user.save();
+    res.status(200).send({ message: "Password updated successfully" });
+  } catch (error) {
+    res.status(400).send({ error });
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
@@ -321,4 +361,5 @@ module.exports = {
   getUsers,
   getUser,
   updateUser,
+  updateUserPassword,
 };
