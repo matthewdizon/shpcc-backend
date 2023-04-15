@@ -9,6 +9,8 @@ const userSchema = new Schema({
     lowercase: true,
   },
   password: String,
+  passwordResetToken: { type: String, default: null },
+  passwordResetExpires: { type: Date, default: null },
   status: {
     type: String,
     enum: ["unverified", "verified"],

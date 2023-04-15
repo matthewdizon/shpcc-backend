@@ -9,81 +9,6 @@ const jwt = require("jsonwebtoken");
 const CryptoJS = require("crypto-js");
 const nodemailer = require("nodemailer");
 
-function sendVerificationEmail(email, token) {
-  try {
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      auth: {
-        user: `${process.env.NODEMAILER_EMAIL}`,
-        pass: `${process.env.NODEMAILER_PASSWORD}`,
-      },
-    });
-
-    const verificationUrl = `${process.env.BACKEND_SERVER}/api/users/verifyEmail?token=${token}`;
-
-    const mailOptions = {
-      from: `SHPCC ${process.env.NODEMAILER_EMAIL}`,
-      to: email,
-      subject: "Verify your email",
-      html: `
-        <html>
-          <head>
-          <style type="text/css">
-          /* Add styles here */
-          body {
-          font-family: Arial, sans-serif;
-          padding: 20px;
-          }
-          h1 {
-          font-size: 20px;
-          text-align: center;
-          color: #333;
-          }
-          p {
-          font-size: 16px;
-          line-height: 1.5;
-          text-align: center;
-          color: #333;
-          margin-top: 20px;
-          }
-          a {
-          display: block;
-          font-size: 16px;
-          background-color: #E74C3C;
-          color: #FFF;
-          padding: 15px 20px;
-          text-align: center;
-          text-decoration: none;
-          border-radius: 5px;
-          margin-top: 20px;
-          }
-          </style>
-          </head>
-          <body>
-          <h1>Verify Your Email</h1>
-          <p>A verification link has been sent to your email. Please check your inbox and follow the instructions to verify your account and start using our app.</p>
-          <a href=${verificationUrl}>Verify Email</a>
-          </body>
-        </html>
-        `,
-    };
-
-    transporter
-      .sendMail(mailOptions)
-      .then(() => {
-        console.log("Email Sent");
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  } catch (error) {
-    throw new Error(error);
-  }
-}
-
 const createUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -426,6 +351,149 @@ const updateUserPassword = async (req, res) => {
   }
 };
 
+const requestForgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(422).send({
+      error: "Email must be provided",
+    });
+  }
+
+  try {
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).send({ error: "User not found" });
+    }
+
+    // Generate a unique token for the password reset link
+    const token = CryptoJS.lib.WordArray.random(16).toString();
+
+    // Set the token and expiry time in the user's document
+    user.passwordResetToken = token;
+    user.passwordResetExpires = Date.now() + 3600000; // Token expires in 1 hour
+
+    // Save the user's document with the updated token and expiry time
+    await user.save();
+
+    // Send an email to the user with a link to the password reset page
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      auth: {
+        user: `${process.env.NODEMAILER_EMAIL}`,
+        pass: `${process.env.NODEMAILER_PASSWORD}`,
+      },
+    });
+
+    const resetPasswordUrl = `${process.env.FRONTEND_CLIENT}/reset-password/?token=${token}`;
+
+    const mailOptions = {
+      from: `SHPCC ${process.env.NODEMAILER_EMAIL}`,
+      to: email,
+      subject: "Password reset request",
+      html: `
+          <html>
+            <head>
+            <style type="text/css">
+            /* Add styles here */
+            body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            }
+            h1 {
+            font-size: 20px;
+            text-align: center;
+            color: #333;
+            }
+            p {
+            font-size: 16px;
+            line-height: 1.5;
+            text-align: center;
+            color: #333;
+            margin-top: 20px;
+            }
+            a {
+            display: block;
+            font-size: 16px;
+            background-color: #E74C3C;
+            color: #FFF;
+            padding: 15px 20px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            }
+            </style>
+            </head>
+            <body>
+            <h1>Reset Your Password</h1>
+            <p>You are receiving this email because you (or someone else) has requested a password reset for your account. Please click the following link or paste it into your browser to reset your password:</p>
+            <a href=${resetPasswordUrl}>Reset Password</a>
+            </body>
+          </html>
+          `,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+        return res.status(500).send({ error: "Email could not be sent" });
+      } else {
+        console.log("Email sent: " + info.response);
+        return res.status(200).send({ message: "Email sent successfully" });
+      }
+    });
+  } catch (error) {
+    res.status(400).send({ error });
+  }
+};
+
+const resetUserPassword = async (req, res) => {
+  const { token } = req.params;
+  const { newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    return res.status(422).send({
+      error: "Token and new password must be provided",
+    });
+  }
+
+  try {
+    // Find the user by the token
+    const user = await User.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .send({ error: "Password reset link is invalid or has expired" });
+    }
+
+    // Generate salt to hash new password
+    const salt = await bcrypt.genSalt(10);
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update the user's password
+    user.password = hashedPassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+
+    await user.save();
+
+    res.status(200).send({ message: "Password updated successfully" });
+  } catch (error) {
+    res.status(400).send({ error });
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
@@ -436,4 +504,6 @@ module.exports = {
   getUser,
   updateUser,
   updateUserPassword,
+  requestForgotPassword,
+  resetUserPassword,
 };

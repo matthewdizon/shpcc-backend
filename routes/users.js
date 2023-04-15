@@ -10,6 +10,8 @@ const {
   getUser,
   updateUser,
   updateUserPassword,
+  requestForgotPassword,
+  resetUserPassword,
 } = require("../controllers/userController");
 const {
   authenticateAdminToken,
@@ -28,5 +30,8 @@ router.get("/users", authenticateAdminToken, getUsers);
 router.get("/:email", authenticateToken, getUser);
 router.patch("/:email", authenticateToken, updateUser);
 router.patch("/updatePassword/:email", authenticateToken, updateUserPassword);
+
+router.post("/forgot-password", requestForgotPassword);
+router.post("/reset-password/:token", resetUserPassword);
 
 module.exports = router;
