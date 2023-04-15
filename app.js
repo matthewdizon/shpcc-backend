@@ -13,8 +13,8 @@ const app = express();
 const corsOptions = {
   origin: [
     "http://localhost:3000",
-    "https://www.shpcreditcoop.com/",
-    "https://develop.shpcreditcoop.com/",
+    "https://www.shpcreditcoop.com",
+    "https://develop.shpcreditcoop.com",
   ],
   credentials: true,
   optionSuccessStatus: 200,
