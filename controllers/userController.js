@@ -120,9 +120,78 @@ const createUser = async (req, res) => {
 
       await user.save();
 
-      sendVerificationEmail(email, token);
+      // Send verification email
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        requireTLS: true,
+        auth: {
+          user: `${process.env.NODEMAILER_EMAIL}`,
+          pass: `${process.env.NODEMAILER_PASSWORD}`,
+        },
+      });
 
-      res.status(201).json({ message: "User Successfully Created" });
+      const verificationUrl = `${process.env.BACKEND_SERVER}/api/users/verifyEmail?token=${token}`;
+
+      const mailOptions = {
+        from: `SHPCC ${process.env.NODEMAILER_EMAIL}`,
+        to: email,
+        subject: "Verify your email",
+        html: `
+          <html>
+            <head>
+            <style type="text/css">
+            /* Add styles here */
+            body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            }
+            h1 {
+            font-size: 20px;
+            text-align: center;
+            color: #333;
+            }
+            p {
+            font-size: 16px;
+            line-height: 1.5;
+            text-align: center;
+            color: #333;
+            margin-top: 20px;
+            }
+            a {
+            display: block;
+            font-size: 16px;
+            background-color: #E74C3C;
+            color: #FFF;
+            padding: 15px 20px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            }
+            </style>
+            </head>
+            <body>
+            <h1>Verify Your Email</h1>
+            <p>A verification link has been sent to your email. Please check your inbox and follow the instructions to verify your account and start using our app.</p>
+            <a href=${verificationUrl}>Verify Email</a>
+            </body>
+          </html>
+          `,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log(error);
+          return res
+            .status(500)
+            .json({ message: "Unable to send verification email" });
+        }
+
+        console.log(`Email sent to ${email}: ${info.response}`);
+        res.status(200).send({ user });
+      });
     } catch (error) {
       console.log(error);
       res.status(500).send("Error Creating Account");
