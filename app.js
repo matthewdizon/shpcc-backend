@@ -10,9 +10,19 @@ const getLoanApplications = require("./routes/loans");
 
 const app = express();
 
-app.use(express.json());
+const corsOptions = {
+  origin: [
+    "http://localhost:3000",
+    "https://www.shpcreditcoop.com/",
+    "https://develop.shpcreditcoop.com/",
+  ],
+  credentials: true,
+  optionSuccessStatus: 200,
+};
 
-app.use(cors());
+app.use(cors(corsOptions));
+
+app.use(express.json());
 
 app.get("/", (_req, res) => res.status(200).send("OK"));
 
