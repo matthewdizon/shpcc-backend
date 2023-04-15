@@ -8,70 +8,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const CryptoJS = require("crypto-js");
 const nodemailer = require("nodemailer");
-const sgMail = require("@sendgrid/mail");
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
-function sendgridEmail(email, token) {
-  const verificationUrl = `${process.env.BACKEND_SERVER}/api/users/verifyEmail?token=${token}`;
-
-  const msg = {
-    to: email,
-    from: "SHPCC adroit.tech.obf@gmail.com",
-    subject: "Verify your email",
-    html: `
-        <html>
-          <head>
-          <style type="text/css">
-          /* Add styles here */
-          body {
-          font-family: Arial, sans-serif;
-          padding: 20px;
-          }
-          h1 {
-          font-size: 20px;
-          text-align: center;
-          color: #333;
-          }
-          p {
-          font-size: 16px;
-          line-height: 1.5;
-          text-align: center;
-          color: #333;
-          margin-top: 20px;
-          }
-          a {
-          display: block;
-          font-size: 16px;
-          background-color: #E74C3C;
-          color: #FFF;
-          padding: 15px 20px;
-          text-align: center;
-          text-decoration: none;
-          border-radius: 5px;
-          margin-top: 20px;
-          }
-          </style>
-          </head>
-          <body>
-          <h1>Verify Your Email</h1>
-          <p>A verification link has been sent to your email. Please check your inbox and follow the instructions to verify your account and start using our app.</p>
-          <a href=${verificationUrl}>Verify Email</a>
-          </body>
-        </html>
-        `,
-  };
-
-  sgMail
-    .send(msg)
-    .then(() => {
-      console.log("Email sent");
-      res.send("Email sent");
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).send("Error sending email");
-    });
-}
 
 function sendVerificationEmail(email, token) {
   try {
@@ -166,32 +102,31 @@ const createUser = async (req, res) => {
       return res.status(422).send({ error: "Email is already in use..." });
     }
 
-    const token = CryptoJS.lib.WordArray.random(16).toString();
+    try {
+      // generate salt to hash password
+      const salt = await bcrypt.genSalt(10);
+      // now we set user password to hashed password
+      const hashedPassword = await bcrypt.hash(password, salt);
 
-    const user = new User({
-      email: email,
-      password: password,
-      status: "unverified",
-      verificationToken: token,
-      accountCreatedDate: new Date(),
-    });
+      const token = CryptoJS.lib.WordArray.random(16).toString();
 
-    // generate salt to hash password
-    const salt = await bcrypt.genSalt(10);
-    // now we set user password to hashed password
-    user.password = await bcrypt.hash(user.password, salt);
+      const user = new User({
+        email: email,
+        password: hashedPassword,
+        status: "unverified",
+        verificationToken: token,
+        accountCreatedDate: new Date(),
+      });
 
-    user
-      .save()
-      .then(() => {
-        User.findOneAndUpdate({ email }, { new: true })
-          .then(() => {
-            sendgridEmail(email, token);
-            res.status(200).send({ user });
-          })
-          .catch((error) => res.status(400).send({ error }));
-      })
-      .catch((error) => res.status(400).send({ error }));
+      await user.save();
+
+      sendVerificationEmail(email, token);
+
+      res.status(201).json({ message: "User Successfully Created" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Error Creating Account");
+    }
   });
 };
 
