@@ -8,6 +8,70 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const CryptoJS = require("crypto-js");
 const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+function sendgridEmail(email, token) {
+  const verificationUrl = `${process.env.BACKEND_SERVER}/api/users/verifyEmail?token=${token}`;
+
+  const msg = {
+    to: email,
+    from: "SHPCC adroit.tech.obf@gmail.com",
+    subject: "Verify your email",
+    html: `
+        <html>
+          <head>
+          <style type="text/css">
+          /* Add styles here */
+          body {
+          font-family: Arial, sans-serif;
+          padding: 20px;
+          }
+          h1 {
+          font-size: 20px;
+          text-align: center;
+          color: #333;
+          }
+          p {
+          font-size: 16px;
+          line-height: 1.5;
+          text-align: center;
+          color: #333;
+          margin-top: 20px;
+          }
+          a {
+          display: block;
+          font-size: 16px;
+          background-color: #E74C3C;
+          color: #FFF;
+          padding: 15px 20px;
+          text-align: center;
+          text-decoration: none;
+          border-radius: 5px;
+          margin-top: 20px;
+          }
+          </style>
+          </head>
+          <body>
+          <h1>Verify Your Email</h1>
+          <p>A verification link has been sent to your email. Please check your inbox and follow the instructions to verify your account and start using our app.</p>
+          <a href=${verificationUrl}>Verify Email</a>
+          </body>
+        </html>
+        `,
+  };
+
+  sgMail
+    .send(msg)
+    .then(() => {
+      console.log("Email sent");
+      res.send("Email sent");
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error sending email");
+    });
+}
 
 function sendVerificationEmail(email, token) {
   try {
@@ -122,7 +186,7 @@ const createUser = async (req, res) => {
       .then(() => {
         User.findOneAndUpdate({ email }, { new: true })
           .then(() => {
-            sendVerificationEmail(email, token);
+            sendgridEmail(email, token);
             res.status(200).send({ user });
           })
           .catch((error) => res.status(400).send({ error }));
