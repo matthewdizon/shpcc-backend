@@ -156,7 +156,17 @@ const loginUser = async (req, res) => {
       const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: "3d",
       });
-      res.json({ accessToken, firstName, lastName, isAdmin, membershipType });
+      res.json({
+        accessToken,
+        firstName,
+        lastName,
+        isAdmin,
+        membershipType,
+        status,
+        department,
+        associateAccountNumber,
+        regularAccountNumber,
+      });
     } else {
       res.status(400).json({ error: "Invalid Password" });
     }
