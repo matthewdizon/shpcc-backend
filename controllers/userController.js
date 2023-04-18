@@ -127,8 +127,18 @@ const createUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email: email });
+
   if (user) {
-    const { firstName, lastName, isAdmin, membershipType, status } = user;
+    const {
+      firstName,
+      lastName,
+      isAdmin,
+      membershipType,
+      status,
+      department,
+      associateAccountNumber,
+      regularAccountNumber,
+    } = user;
     const payload = {
       email,
       firstName,
@@ -136,6 +146,9 @@ const loginUser = async (req, res) => {
       isAdmin,
       membershipType,
       status,
+      department,
+      associateAccountNumber,
+      regularAccountNumber,
     };
     const validPassword = await bcrypt.compare(password, user.password);
 
@@ -317,7 +330,7 @@ const updateUserPassword = async (req, res) => {
 
   if (!email || !oldPassword || !newPassword) {
     return res.status(422).send({
-      error: "Email, old password, and new password must be provided",
+      error: "Old password and new password must be provided",
     });
   }
 
