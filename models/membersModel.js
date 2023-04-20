@@ -142,7 +142,7 @@ const regularApplicationSchema = new mongoose.Schema({
   gyrt: { type: String },
 
   // ---accountInfo
-  // accountNumber ??
+  accountNumber: { type: String },
   orNumber: { type: String },
   dateEncoded: { type: String },
   encodedBy: { type: String },

@@ -8,6 +8,10 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const CryptoJS = require("crypto-js");
 const nodemailer = require("nodemailer");
+const {
+  AssociateApplication,
+  RegularApplication,
+} = require("../models/membersModel");
 
 const createUser = async (req, res) => {
   const { email, password } = req.body;
@@ -323,6 +327,7 @@ const getUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   const { email } = req.params;
+  const { associateAccountNumber, regularAccountNumber } = req.body;
 
   const user = await User.findOneAndUpdate(
     { email: email },
@@ -330,6 +335,51 @@ const updateUser = async (req, res) => {
       ...req.body,
     }
   );
+
+  if (associateAccountNumber === "") {
+    await User.findOneAndUpdate(
+      { email: email },
+      {
+        membershipType: "none",
+      }
+    );
+    await AssociateApplication.findOneAndUpdate(
+      { user: email },
+      {
+        accountNumber: associateAccountNumber,
+      }
+    );
+  }
+
+  if (associateAccountNumber !== "") {
+    await User.findOneAndUpdate(
+      { email: email },
+      {
+        membershipType: "Associate",
+      }
+    );
+    await AssociateApplication.findOneAndUpdate(
+      { user: email },
+      {
+        accountNumber: associateAccountNumber,
+      }
+    );
+  }
+
+  if (regularAccountNumber !== "") {
+    await User.findOneAndUpdate(
+      { email: email },
+      {
+        membershipType: "Regular",
+      }
+    );
+    await RegularApplication.findOneAndUpdate(
+      { user: email },
+      {
+        accountNumber: regularAccountNumber,
+      }
+    );
+  }
 
   return res.status(200).json(user);
 };

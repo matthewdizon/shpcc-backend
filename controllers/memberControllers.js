@@ -59,6 +59,7 @@ const updateAssociateApplication = async (req, res) => {
         contactNumber,
         address,
         facebookName,
+        associateAccountNumber: accountNumber,
         membershipType: "Associate",
       }
     );
@@ -112,8 +113,14 @@ const updateRegularApplication = async (req, res) => {
   if (status === "Approved") {
     // if body includes a status with "Approved" update the user model
     // updating the ff things: membership type, contact number, first and last name, etc
-    const { firstName, lastName, contactNumber, address, facebookName } =
-      regularApplication;
+    const {
+      firstName,
+      lastName,
+      contactNumber,
+      address,
+      facebookName,
+      accountNumber,
+    } = regularApplication;
     await User.findOneAndUpdate(
       { email: email },
       {
@@ -122,6 +129,7 @@ const updateRegularApplication = async (req, res) => {
         contactNumber,
         address,
         facebookName,
+        regularAccountNumber: accountNumber,
         membershipType: "Regular",
       }
     );
