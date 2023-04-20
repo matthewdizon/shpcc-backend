@@ -70,6 +70,7 @@ const regularLoanApplicationSchema = new mongoose.Schema({
 
   // Loan Details
   date: { type: String },
+  type: { type: String },
   amount: { type: String },
   duration: { type: String },
   paymentInterval: { type: String },
@@ -103,6 +104,7 @@ const regularLoanApplicationSchema = new mongoose.Schema({
         vehicle: { type: String },
         model: { type: String },
         motorNumber: { type: String },
+        brand: { type: String },
       },
     ],
     default: [
@@ -110,6 +112,25 @@ const regularLoanApplicationSchema = new mongoose.Schema({
         vehicle: "",
         model: "",
         motorNumber: "",
+        brand: "",
+      },
+    ],
+  },
+
+  // Real Mortgage
+  realMortgages: {
+    type: [
+      {
+        realEstate: { type: String },
+        tcdNumber: { type: String },
+        location: { type: String },
+      },
+    ],
+    default: [
+      {
+        realEstate: "",
+        tcdNumber: "",
+        location: "",
       },
     ],
   },
