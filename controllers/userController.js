@@ -351,6 +351,15 @@ const updateUser = async (req, res) => {
     );
   }
 
+  if (regularAccountNumber === "") {
+    await RegularApplication.findOneAndUpdate(
+      { user: email },
+      {
+        accountNumber: regularAccountNumber,
+      }
+    );
+  }
+
   if (associateAccountNumber !== "") {
     await User.findOneAndUpdate(
       { email: email },
