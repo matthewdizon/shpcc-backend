@@ -336,7 +336,7 @@ const updateUser = async (req, res) => {
     }
   );
 
-  if (associateAccountNumber === "") {
+  if (associateAccountNumber === undefined || associateAccountNumber === "") {
     await User.findOneAndUpdate(
       { email: email },
       {
@@ -351,7 +351,7 @@ const updateUser = async (req, res) => {
     );
   }
 
-  if (regularAccountNumber === "") {
+  if (regularAccountNumber === undefined || regularAccountNumber === "") {
     await RegularApplication.findOneAndUpdate(
       { user: email },
       {
@@ -360,7 +360,7 @@ const updateUser = async (req, res) => {
     );
   }
 
-  if (associateAccountNumber !== "") {
+  if (associateAccountNumber !== undefined && associateAccountNumber !== "") {
     await User.findOneAndUpdate(
       { email: email },
       {
@@ -375,7 +375,7 @@ const updateUser = async (req, res) => {
     );
   }
 
-  if (regularAccountNumber !== "") {
+  if (regularAccountNumber !== undefined && regularAccountNumber !== "") {
     await User.findOneAndUpdate(
       { email: email },
       {
